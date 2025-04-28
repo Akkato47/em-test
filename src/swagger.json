@@ -13,10 +13,6 @@
       "description": "Authentication related endpoints"
     },
     {
-      "name": "User",
-      "description": "User related endpoints"
-    },
-    {
       "name": "Requests",
       "description": "Requests related endpoints"
     }
@@ -122,7 +118,7 @@
         }
       }
     },
-    "/requests/list/{filter}/{start}/{end}": {
+    "/requests/list/{filter}/{start}/{end}/{from}/{to}": {
       "get": {
         "tags": ["Requests"],
         "summary": "Get Requests data",
@@ -151,14 +147,14 @@
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "yyyy-mm-ddThh:mm:ss"
+            "format": "yyyy-mm-dd"
           },
           {
             "name": "to",
             "in": "path",
             "required": true,
             "type": "string",
-            "format": "yyyy-mm-ddThh:mm:ss"
+            "format": "yyyy-mm-dd"
           }
         ],
         "security": [{ "api_key": [] }],
@@ -377,27 +373,18 @@
     "CreateUserDto": {
       "type": "object",
       "properties": {
-        "firstName": {
-          "type": "string"
-        },
-        "secondName": {
-          "type": "string"
-        },
         "mail": {
-          "type": "string"
-        },
-        "phone": {
           "type": "string"
         },
         "role": {
           "type": "string",
-          "enum": ["org", "user"]
+          "enum": ["ADMIN"]
         },
         "password": {
           "type": "string"
         }
       },
-      "required": ["fullName", "mail", "role", "birthDate", "password"]
+      "required": ["mail", "role", "password"]
     },
     "LoginUserDto": {
       "type": "object",
@@ -405,14 +392,11 @@
         "mail": {
           "type": "string"
         },
-        "phone": {
-          "type": "string"
-        },
         "password": {
           "type": "string"
         }
       },
-      "required": ["password"]
+      "required": ["mail", "password"]
     },
     "CreateRequestDto": {
       "type": "object",
@@ -459,6 +443,9 @@
     "GetRequestsResponse": {
       "type": "object",
       "properties": {
+        "uid": {
+          "type": "string"
+        },
         "title": {
           "type": "string"
         },

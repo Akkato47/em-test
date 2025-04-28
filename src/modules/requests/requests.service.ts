@@ -1,4 +1,4 @@
-import { and, between, eq } from 'drizzle-orm';
+import { and, between, eq, sql } from 'drizzle-orm';
 
 import { db } from '@/db/drizzle/connect';
 import { requests, responses } from '@/db/drizzle/schema/requests/schema';
@@ -21,6 +21,7 @@ export const getRequests = async (
     if (filter === 'All') {
       const allRequests = await db
         .select({
+          uid: requests.uid,
           title: requests.title,
           body: requests.body,
           status: requests.status,
@@ -31,7 +32,7 @@ export const getRequests = async (
           }
         })
         .from(requests)
-        .where(between(requests.createdAt, fromDate, toDate))
+        .where(between(sql`${requests.createdAt}::date`, fromDate, toDate))
         .limit(end)
         .offset(start)
         .leftJoin(users, eq(users.uid, requests.responsibleUid));
@@ -39,6 +40,7 @@ export const getRequests = async (
     } else {
       const allRequests = await db
         .select({
+          uid: requests.uid,
           title: requests.title,
           body: requests.body,
           status: requests.status,
@@ -48,7 +50,12 @@ export const getRequests = async (
           }
         })
         .from(requests)
-        .where(and(eq(requests.status, filter), between(requests.createdAt, fromDate, toDate)))
+        .where(
+          and(
+            eq(requests.status, filter),
+            between(sql`${requests.createdAt}::date`, fromDate, toDate)
+          )
+        )
         .limit(end)
         .offset(start)
         .leftJoin(users, eq(users.uid, requests.responsibleUid));
@@ -76,7 +83,10 @@ export const takeRequestOnWork = async (responsibleUid: string, requestUid: stri
     if (tryRequest.responsibleUid !== null)
       throw new CustomError(HttpStatus.BAD_REQUEST, ErrorMessage.ERROR_REQUEST_IS_BUSY);
 
-    await db.update(requests).set({ responsibleUid, status: 'In progress' });
+    await db
+      .update(requests)
+      .set({ responsibleUid, status: 'In progress' })
+      .where(eq(requests.uid, requestUid));
   } catch (error) {
     throw error;
   }
@@ -86,6 +96,7 @@ export const getResponseByRequest = async (requestUid: string) => {
   try {
     const responseData = await db
       .select({
+        uid: responses.uid,
         title: responses.title,
         body: responses.body,
         updatedAt: responses.updatedAt,
@@ -107,7 +118,11 @@ export const getResponseByRequest = async (requestUid: string) => {
 export const cancelAllRequests = async (responsibleUid: string, dto: CancelAllRequestsDto) => {
   try {
     await db.transaction(async (tx) => {
-      const allRequests = await tx.select().from(requests).where(eq(requests.status, 'Canceled'));
+      const allRequests = await tx
+        .select()
+        .from(requests)
+        .where(eq(requests.status, 'In progress'));
+      console.log(allRequests);
       await tx
         .update(requests)
         .set({ status: 'Canceled' })
@@ -120,6 +135,7 @@ export const cancelAllRequests = async (responsibleUid: string, dto: CancelAllRe
             .values({ ...dto, authorUid: responsibleUid, requestUid: request.uid })
         );
       }
+      console.log(responsesToCreate);
       await Promise.all(responsesToCreate);
     });
   } catch (error) {
@@ -132,15 +148,13 @@ export const createResponse = async (responsibleUid: string, dto: CreateResponse
     const [tryRequest] = await db.select().from(requests).where(eq(requests.uid, dto.requestUid));
 
     if (!tryRequest) throw new CustomError(HttpStatus.BAD_REQUEST);
+    console.log(tryRequest);
     if (tryRequest.responsibleUid !== responsibleUid) throw new CustomError(HttpStatus.FORBIDDEN);
 
     const { cancel, ...createDto } = dto;
 
     await db.transaction(async (tx) => {
-      await tx
-        .insert(responses)
-        .values({ ...createDto, authorUid: responsibleUid })
-        .returning({ uid: requests.uid });
+      await tx.insert(responses).values({ ...createDto, authorUid: responsibleUid });
       await tx
         .update(requests)
         .set({ status: cancel ? 'Canceled' : 'Completed' })

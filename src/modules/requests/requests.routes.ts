@@ -6,7 +6,7 @@ import * as requestsController from './requests.controller';
 const router = Router();
 
 router.get(
-  '/list/:filter/:start/:end',
+  '/list/:filter/:start/:end/:from/:to',
   isAuthenticated,
   isRoleValid('ADMIN'),
   requestsController.getRequests
@@ -19,16 +19,11 @@ router.get(
   requestsController.getResponseByRequest
 );
 
-router.post('/', isAuthenticated, isRoleValid('ADMIN'), requestsController.createRequest);
+router.post('/', requestsController.createRequest);
 
-router.post('/resp', requestsController.createResponse);
+router.post('/resp', isAuthenticated, isRoleValid('ADMIN'), requestsController.createResponse);
 
-router.post(
-  '/cancel-all',
-  isAuthenticated,
-  isRoleValid('ADMIN'),
-  requestsController.cancelAllRequests
-);
+router.post('/cancel-all', requestsController.cancelAllRequests);
 
 router.patch(
   '/take/:requestUid',

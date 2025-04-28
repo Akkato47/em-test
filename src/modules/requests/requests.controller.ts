@@ -46,9 +46,9 @@ export async function createRequest(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await requestsService.createRequest(req.body);
+    await requestsService.createRequest(req.body);
 
-    sendResponse(res, HttpStatus.CREATED, result);
+    sendResponse(res, HttpStatus.CREATED);
   } catch (error) {
     next(error);
   }
@@ -60,9 +60,9 @@ export async function takeRequestOnWork(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await requestsService.takeRequestOnWork(req.user.uid, req.params.requestUid);
+    await requestsService.takeRequestOnWork(req.user.uid, req.params.requestUid);
 
-    sendResponse(res, HttpStatus.OK, result);
+    sendResponse(res, HttpStatus.OK);
   } catch (error) {
     next(error);
   }
@@ -74,10 +74,11 @@ export async function createResponse(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await requestsService.createResponse(req.user.uid, req.body);
+    await requestsService.createResponse(req.user.uid, req.body);
 
-    sendResponse(res, HttpStatus.CREATED, result);
+    sendResponse(res, HttpStatus.CREATED);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 }
@@ -88,9 +89,9 @@ export async function cancelAllRequests(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await requestsService.cancelAllRequests(req.user.uid, req.body);
+    await requestsService.cancelAllRequests(req.user.uid, req.body);
 
-    sendResponse(res, HttpStatus.CREATED, result);
+    sendResponse(res, HttpStatus.OK);
   } catch (error) {
     next(error);
   }

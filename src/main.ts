@@ -15,6 +15,7 @@ import router from './modules/main.router';
 import swaggerDocument from './swagger.json';
 import { CustomError } from './utils/custom_error';
 import { HttpStatus } from './utils/enums/http-status';
+import { httpMessages } from './utils/http_messages';
 
 export const app = express();
 const port = config.app.port;
@@ -53,22 +54,26 @@ export const init = (async () => {
     next();
   });
 
-  app.use((_req: Request, _res: Response, next: NextFunction) => {
-    next(new CustomError(404, `endpoint ${_req.path} not found`));
+  app.use((req: Request, _res: Response, next: NextFunction) => {
+    next(new CustomError(HttpStatus.NOT_FOUND, `endpoint ${req.path} not found`));
   });
 
-  app.use((err: CustomError, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: CustomError, req: Request, res: Response, _next: NextFunction) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || 'Internal Server Error.';
-    logger.error(message);
+    logger.error(`${req.path} - ${message}\n ${err.stack}`);
     _next();
-    sendResponse(res, statusCode, message);
+    sendResponse(res, statusCode, httpMessages[statusCode]);
   });
 
-  app.use((err: Error, _req: Request, res: Response, next: NextFunction) => {
-    logger.error(err.stack);
+  app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    logger.error(`${req.path} - ${err.message}\n ${err.stack}`);
     next();
-    sendResponse(res, HttpStatus.INTERNAL_SERVER_ERROR, 'Something went wrong...');
+    sendResponse(
+      res,
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      httpMessages[HttpStatus.INTERNAL_SERVER_ERROR]
+    );
   });
   redisClient.connect();
 
