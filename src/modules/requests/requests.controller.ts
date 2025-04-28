@@ -1,10 +1,12 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import * as requestsService from './requests.service';
-import { TRequestFilter } from './types/filter.types';
 import { sendResponse } from '@/lib/reponse';
 import { HttpStatus } from '@/utils/enums/http-status';
-import { CancelAllRequestsDto, CreateRequestDto, CreateResponseDto } from './dto/create.dto';
+
+import type { CancelAllRequestsDto, CreateRequestDto, CreateResponseDto } from './dto/create.dto';
+import type { TRequestFilter } from './types/filter.types';
+
+import * as requestsService from './requests.service';
 
 export async function getRequests(
   req: Request<{ filter: TRequestFilter; start: string; end: string; from: string; to: string }>,
@@ -78,7 +80,6 @@ export async function createResponse(
 
     sendResponse(res, HttpStatus.CREATED);
   } catch (error) {
-    console.log(error);
     next(error);
   }
 }

@@ -1,8 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 
+import type { RoleType } from '@/db/drizzle/schema/user/types/role.type';
+
 import { CustomError } from '@/utils/custom_error';
 import { HttpStatus } from '@/utils/enums/http-status';
-import { RoleType } from '@/db/drizzle/schema/user/types/role.type';
 
 export function isRoleValid(requiredRole: RoleType) {
   return async (req: Request, _res: Response, next: NextFunction) => {
@@ -14,7 +15,7 @@ export function isRoleValid(requiredRole: RoleType) {
       }
 
       return next();
-    } catch (err) {
+    } catch {
       next(new CustomError(HttpStatus.FORBIDDEN));
     }
   };

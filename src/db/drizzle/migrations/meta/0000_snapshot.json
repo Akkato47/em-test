@@ -65,12 +65,8 @@
           "name": "requests_responsible_uid_users_uid_fk",
           "tableFrom": "requests",
           "tableTo": "users",
-          "columnsFrom": [
-            "responsible_uid"
-          ],
-          "columnsTo": [
-            "uid"
-          ],
+          "columnsFrom": ["responsible_uid"],
+          "columnsTo": ["uid"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -133,12 +129,8 @@
           "name": "responses_request_uid_requests_uid_fk",
           "tableFrom": "responses",
           "tableTo": "requests",
-          "columnsFrom": [
-            "request_uid"
-          ],
-          "columnsTo": [
-            "uid"
-          ],
+          "columnsFrom": ["request_uid"],
+          "columnsTo": ["uid"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -146,12 +138,8 @@
           "name": "responses_author_uid_users_uid_fk",
           "tableFrom": "responses",
           "tableTo": "users",
-          "columnsFrom": [
-            "author_uid"
-          ],
-          "columnsTo": [
-            "uid"
-          ],
+          "columnsFrom": ["author_uid"],
+          "columnsTo": ["uid"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -210,16 +198,12 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "users_mail_unique": {
           "name": "users_mail_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     }

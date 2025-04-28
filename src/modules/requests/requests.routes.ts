@@ -1,6 +1,8 @@
+import { Router } from 'express';
+
 import { isAuthenticated } from '@/middleware/auth.middleware';
 import { isRoleValid } from '@/middleware/role.middleware';
-import { Router } from 'express';
+
 import * as requestsController from './requests.controller';
 
 const router = Router();

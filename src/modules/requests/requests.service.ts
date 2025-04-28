@@ -122,7 +122,6 @@ export const cancelAllRequests = async (responsibleUid: string, dto: CancelAllRe
         .select()
         .from(requests)
         .where(eq(requests.status, 'In progress'));
-      console.log(allRequests);
       await tx
         .update(requests)
         .set({ status: 'Canceled' })
@@ -135,7 +134,6 @@ export const cancelAllRequests = async (responsibleUid: string, dto: CancelAllRe
             .values({ ...dto, authorUid: responsibleUid, requestUid: request.uid })
         );
       }
-      console.log(responsesToCreate);
       await Promise.all(responsesToCreate);
     });
   } catch (error) {
@@ -148,7 +146,6 @@ export const createResponse = async (responsibleUid: string, dto: CreateResponse
     const [tryRequest] = await db.select().from(requests).where(eq(requests.uid, dto.requestUid));
 
     if (!tryRequest) throw new CustomError(HttpStatus.BAD_REQUEST);
-    console.log(tryRequest);
     if (tryRequest.responsibleUid !== responsibleUid) throw new CustomError(HttpStatus.FORBIDDEN);
 
     const { cancel, ...createDto } = dto;
