@@ -1,9 +1,152 @@
 {
-  "id": "c3e7a534-7822-45f8-8526-bad1edfc7e97",
+  "id": "40b5882b-165f-4d18-938b-83c184060f80",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.requests": {
+      "name": "requests",
+      "schema": "",
+      "columns": {
+        "uid": {
+          "name": "uid",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contact_mail": {
+          "name": "contact_mail",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "responsible_uid": {
+          "name": "responsible_uid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "requests_responsible_uid_users_uid_fk": {
+          "name": "requests_responsible_uid_users_uid_fk",
+          "tableFrom": "requests",
+          "tableTo": "users",
+          "columnsFrom": ["responsible_uid"],
+          "columnsTo": ["uid"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.responses": {
+      "name": "responses",
+      "schema": "",
+      "columns": {
+        "uid": {
+          "name": "uid",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_uid": {
+          "name": "request_uid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "author_uid": {
+          "name": "author_uid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "responses_request_uid_requests_uid_fk": {
+          "name": "responses_request_uid_requests_uid_fk",
+          "tableFrom": "responses",
+          "tableTo": "requests",
+          "columnsFrom": ["request_uid"],
+          "columnsTo": ["uid"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "responses_author_uid_users_uid_fk": {
+          "name": "responses_author_uid_users_uid_fk",
+          "tableFrom": "responses",
+          "tableTo": "users",
+          "columnsFrom": ["author_uid"],
+          "columnsTo": ["uid"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
     "public.users": {
       "name": "users",
       "schema": "",
@@ -55,16 +198,12 @@
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "users_mail_unique": {
           "name": "users_mail_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       }
     }

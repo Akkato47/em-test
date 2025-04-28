@@ -55,23 +55,3 @@ export const createUser = async (createUserDto: CreateUserDto) => {
     throw error;
   }
 };
-
-export const getUserProfile = async (userUid: string) => {
-  try {
-    const data = await db
-      .select({
-        uid: users.uid,
-        mail: users.mail,
-        role: users.role
-      })
-      .from(users)
-      .where(eq(users.uid, userUid));
-    if (!data[0]) {
-      throw new CustomError(HttpStatus.NOT_FOUND, 'Пользователь не найден');
-    }
-
-    return data[0];
-  } catch (error) {
-    throw error;
-  }
-};
