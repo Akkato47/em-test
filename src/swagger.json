@@ -15,6 +15,10 @@
     {
       "name": "User",
       "description": "User related endpoints"
+    },
+    {
+      "name": "Requests",
+      "description": "Requests related endpoints"
     }
   ],
   "schemes": ["http"],
@@ -118,36 +122,223 @@
         }
       }
     },
-    "/user/profile": {
+    "/requests/list/{filter}/{start}/{end}": {
       "get": {
-        "tags": ["User"],
-        "summary": "Get user profile",
-        "description": "Retrieves the profile information of the authenticated user.",
-        "security": [
+        "tags": ["Requests"],
+        "summary": "Get Requests data",
+        "parameters": [
           {
-            "api_key": []
+            "name": "filter",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "enum": ["All", "Canceled", "Completed", "In progress", "New"]
+          },
+          {
+            "name": "start",
+            "in": "path",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "end",
+            "in": "path",
+            "required": true,
+            "type": "number"
+          },
+          {
+            "name": "from",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "yyyy-mm-ddThh:mm:ss"
+          },
+          {
+            "name": "to",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "yyyy-mm-ddThh:mm:ss"
           }
         ],
+        "security": [{ "api_key": [] }],
         "responses": {
           "200": {
-            "description": "User profile retrieved successfully",
+            "description": "Requests data",
             "schema": {
               "type": "object",
               "properties": {
                 "statusCode": {
                   "type": "number"
                 },
-                "message": {
-                  "$ref": "#/definitions/CreateUserDto"
+                "payload": {
+                  "$ref": "#/definitions/GetRequestsResponse"
                 }
               }
             }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/requests/resp/{requestUid}": {
+      "get": {
+        "tags": ["Requests"],
+        "summary": "Get Responses data",
+        "parameters": [
+          {
+            "name": "requestUid",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "security": [{ "api_key": [] }],
+        "responses": {
+          "200": {
+            "description": "Response data",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number"
+                },
+                "payload": {
+                  "$ref": "#/definitions/GetResponseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests": {
+      "post": {
+        "tags": ["Requests"],
+        "summary": "Create Request",
+        "security": [{ "api_key": [] }],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "list",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateRequestDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number"
+                },
+                "payload": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/resp": {
+      "post": {
+        "tags": ["Requests"],
+        "summary": "Create Response",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "list",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateResponseDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number"
+                },
+                "payload": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/cancel-all": {
+      "post": {
+        "tags": ["Requests"],
+        "summary": "Cancel all requests in progress",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "list",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CancelAllRequestsDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Canceled successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number"
+                },
+                "payload": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/requests/take/{requestUid}": {
+      "patch": {
+        "tags": ["Requests"],
+        "summary": "Take Request on work",
+        "security": [{ "api_key": [] }],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "requestUid",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated successfully",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "statusCode": {
+                  "type": "number"
+                },
+                "payload": {
+                  "type": "string",
+                  "example": "Success"
+                }
+              }
+            }
           }
         }
       }
@@ -223,29 +414,91 @@
       },
       "required": ["password"]
     },
-    "GetUserProfileResponse": {
+    "CreateRequestDto": {
       "type": "object",
       "properties": {
-        "uid": {
+        "title": {
           "type": "string"
         },
-        "firstName": {
+        "body": {
           "type": "string"
         },
-        "secondName": {
+        "contactMail": {
+          "type": "string"
+        }
+      }
+    },
+    "CreateResponseDto": {
+      "type": "object",
+      "properties": {
+        "requestUid": {
           "type": "string"
         },
-        "mail": {
+        "title": {
           "type": "string"
         },
-        "phone": {
+        "body": {
           "type": "string"
         },
-        "birthDate": {
+        "cancel": {
+          "type": "boolean"
+        }
+      }
+    },
+    "CancelAllRequestsDto": {
+      "type": "object",
+      "properties": {
+        "title": {
           "type": "string"
         },
-        "role": {
+        "body": {
           "type": "string"
+        }
+      }
+    },
+    "GetRequestsResponse": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Canceled", "Completed", "In progress", "New"]
+        },
+        "contactMail": {
+          "type": "string"
+        },
+        "responsible": {
+          "type": "object",
+          "properties": {
+            "uid": { "type": "string" },
+            "mail": { "type": "string" }
+          }
+        }
+      }
+    },
+    "GetResponseResponse": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "body": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        },
+        "author": {
+          "type": "object",
+          "properties": {
+            "uid": { "type": "string" },
+            "mail": { "type": "string" }
+          }
         }
       }
     }

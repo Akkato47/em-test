@@ -9,10 +9,9 @@ export const requests = pgTable('requests', {
   ...baseSchema,
   title: text('title').notNull(),
   body: text('body').notNull(),
+  contactMail: text('contact_mail'),
   status: text('status').notNull().$type<TRequestStatus>(),
-  responsibleUid: uuid('responsible_uid')
-    .notNull()
-    .references(() => users.uid)
+  responsibleUid: uuid('responsible_uid').references(() => users.uid)
 });
 
 export const responses = pgTable('responses', {
